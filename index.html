@@ -366,6 +366,120 @@
     .hidden {
       display: none !important;
     }
+
+    /* Mobile Navigation & Responsive Styles */
+    .sidebar-toggle {
+      display: none;
+    }
+
+    .hamburger-close {
+      display: none;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 199;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar-toggle {
+        display: inline-flex;
+      }
+
+      .hamburger-close {
+        display: inline-flex;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 200;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: none;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
+      }
+
+      .topbar {
+        padding: 0 12px;
+        gap: 8px;
+      }
+
+      .search-box {
+        width: 100%;
+        max-width: none;
+      }
+
+      .cards-grid {
+        padding: 16px;
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+
+      .bookmark-card {
+        padding: 16px;
+      }
+
+      .modal-card {
+        padding: 20px;
+        max-width: 95vw;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cards-grid {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .topbar {
+        padding: 0 10px;
+        height: 56px;
+      }
+
+      .bookmark-card {
+        padding: 14px;
+      }
+
+      .card-title {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 
@@ -396,10 +510,16 @@
     </div>
   </div>
 
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
   <div class="app-container">
     <aside class="sidebar">
-      <div class="sidebar-brand">
-        <i class="ti ti-radar"></i> ZenRadar
+      <div class="sidebar-brand" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="ti ti-radar"></i> ZenRadar
+        </div>
+        <button class="icon-btn hamburger-close" onclick="toggleSidebar()" title="Close Menu">
+          <i class="ti ti-x"></i>
+        </button>
       </div>
 
       <ul class="nav-list">
@@ -425,6 +545,9 @@
 
     <main class="main-content">
       <header class="topbar">
+        <button class="icon-btn sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">
+          <i class="ti ti-menu-2"></i>
+        </button>
         <div class="search-box">
           <input type="text" placeholder="Search title, URL, tags..." oninput="handleSearch(this.value)">
         </div>
@@ -614,13 +737,26 @@
       return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     }
 
+    window.toggleSidebar = function() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (sidebar) sidebar.classList.toggle('open');
+      if (overlay) overlay.classList.toggle('show');
+    };
     window.login = login;
     window.logout = logout;
     window.saveLink = saveLink;
     window.toggleFav = toggleFav;
     window.toggleRead = toggleRead;
     window.deleteLink = deleteLink;
-    window.setFilter = (f) => { activeFilter = f; render(); };
+    window.setFilter = (f) => { 
+      activeFilter = f; 
+      render(); 
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar')?.classList.remove('open');
+        document.getElementById('sidebar-overlay')?.classList.remove('show');
+      }
+    };
     window.handleSearch = (q) => { searchQuery = q; render(); };
     window.openAddModal = () => document.getElementById('modal-overlay').classList.remove('hidden');
     window.closeModal = () => {
