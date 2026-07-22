@@ -589,16 +589,16 @@
           ${l.tag ? `<div class="card-tags"><span class="tag-pill">${escapeHtml(l.tag)}</span></div>` : ''}
           <div class="card-actions">
             <div style="display: flex; gap: 8px;">
-              <button class="icon-action ${l.favorite ? 'active' : ''}" onclick="toggleFav('${l.soul}')" title="Favorite">
+              <button class="icon-action ${l.favorite ? 'active' : ''}" onclick="toggleFav('${escapeJs(l.soul)}')" title="Favorite">
                 <i class="ti ti-star${l.favorite ? '-filled' : ''}"></i>
               </button>
-              <button class="icon-action ${l.read ? 'active' : ''}" onclick="toggleRead('${l.soul}')" title="${l.read ? 'Mark Unread' : 'Mark Read'}">
+              <button class="icon-action ${l.read ? 'active' : ''}" onclick="toggleRead('${escapeJs(l.soul)}')" title="${l.read ? 'Mark Unread' : 'Mark Read'}">
                 <i class="ti ti-check"></i>
               </button>
             </div>
             <div style="display: flex; gap: 8px;">
               <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="icon-action" title="Open Link"><i class="ti ti-external-link"></i></a>
-              <button class="icon-action" onclick="deleteLink('${l.soul}')" title="Delete"><i class="ti ti-trash"></i></button>
+              <button class="icon-action" onclick="deleteLink('${escapeJs(l.soul)}')" title="Delete"><i class="ti ti-trash"></i></button>
             </div>
           </div>
         `;
@@ -610,6 +610,10 @@
       return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
+    function escapeJs(str) {
+      return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
     window.login = login;
     window.logout = logout;
     window.saveLink = saveLink;
@@ -619,7 +623,13 @@
     window.setFilter = (f) => { activeFilter = f; render(); };
     window.handleSearch = (q) => { searchQuery = q; render(); };
     window.openAddModal = () => document.getElementById('modal-overlay').classList.remove('hidden');
-    window.closeModal = () => document.getElementById('modal-overlay').classList.add('hidden');
+    window.closeModal = () => {
+      document.getElementById('modal-overlay').classList.add('hidden');
+      document.getElementById('link-url').value = '';
+      document.getElementById('link-title').value = '';
+      document.getElementById('link-tag').value = '';
+      document.getElementById('link-desc').value = '';
+    };
 
     if (sessionStorage.getItem('zenradar_user') && sessionStorage.getItem('zenradar_pass')) {
       login();
